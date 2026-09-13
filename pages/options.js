@@ -31,11 +31,11 @@
   let isRecording = false;
 
   const DEFAULT_SHORTCUT = {
-    display: 'Shift + E',
-    key: 'e',
-    code: 'KeyE',
-    shiftKey: true,
-    ctrlKey: false,
+    display: 'Ctrl + `',
+    key: '`',
+    code: 'Backquote',
+    shiftKey: false,
+    ctrlKey: true,
     altKey: false,
     metaKey: false
   };
@@ -177,6 +177,8 @@
       primaryKey = e.code.replace('Key', '');
     } else if (e.code && e.code.startsWith('Digit')) {
       primaryKey = e.code.replace('Digit', '');
+    } else if (e.code === 'Backquote' || e.key === '`') {
+      primaryKey = '`';
     }
 
     const parts = [];
@@ -257,7 +259,7 @@
       renderShortcutBadge(DEFAULT_SHORTCUT);
 
       shortcutSaveFeedback.style.display = 'inline';
-      shortcutSaveFeedback.textContent = '✓ Shortcut reset to default (Shift + E)!';
+      shortcutSaveFeedback.textContent = '✓ Shortcut reset to default (Ctrl + `)!';
       setTimeout(() => {
         shortcutSaveFeedback.style.display = 'none';
       }, 3500);

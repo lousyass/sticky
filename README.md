@@ -9,10 +9,10 @@ A friction-free, local-only Firefox browser extension to capture links, social p
 While scrolling feeds (Reddit, YouTube, Instagram, articles, or documentation), you often stumble upon links, discussions, or videos you want to revisit later. Bookmarking them clutters browser bookmarks, and copying links into note apps breaks your flow.
 
 Sticky solves this:
-- **Instant Save via Shortcut (Default: `Shift + E`, Fully Customizable)**:
+- **Instant Save via Shortcut (Default: `Ctrl + \``, Fully Customizable)**:
   - **On any generic page**: captures URL, page title, Open Graph / Twitter card preview image, or site favicon. If no preview image exists, falls back to a screenshot thumbnail.
   - **On Reddit specifically**: automatically detects which post is currently under your cursor or centered in your viewport and saves *that post's* permalink and title instead of the generic feed URL.
-  - **Customizable Keys**: Customize the shortcut directly in **Sticky Settings &rarr; Capture Keyboard Shortcut** with an interactive key recorder, or reset to default <kbd>Shift</kbd> + <kbd>E</kbd> anytime.
+  - **Customizable Keys**: Customize the shortcut directly in **Sticky Settings &rarr; Capture Keyboard Shortcut** with an interactive key recorder, or reset to default <kbd>Ctrl</kbd> + <kbd>`</kbd> anytime.
 - **Right-Click Context Menu**:
   - Save links, images, selected text quotes, or whole pages via right-click without interrupting your flow.
 - **Two Save Types**:
@@ -39,7 +39,7 @@ Sticky solves this:
 3. Click the **"Load Temporary Add-on..."** button.
 4. Browse to this directory (`sticky/`) and select **`manifest.json`**.
 5. Sticky is now loaded and active!
-   - Press <kbd>Shift</kbd> + <kbd>E</kbd> on any tab to save.
+   - Press <kbd>Ctrl</kbd> + <kbd>`</kbd> on any tab to save.
    - Click the Sticky icon in your Firefox toolbar or press <kbd>Alt</kbd> + <kbd>L</kbd> to open your **Library**.
 
 ---

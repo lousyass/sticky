@@ -338,10 +338,10 @@
   // ==========================================
 
   let activeShortcut = {
-    key: 'e',
-    code: 'KeyE',
-    shiftKey: true,
-    ctrlKey: false,
+    key: '`',
+    code: 'Backquote',
+    shiftKey: false,
+    ctrlKey: true,
     altKey: false,
     metaKey: false
   };

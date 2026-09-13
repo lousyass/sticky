@@ -278,11 +278,11 @@
       } else {
         emptyTitle.textContent = 'Nothing saved yet';
         StickyStorage.getSettings().then(settings => {
-          const shortcutDisplay = settings?.captureShortcut?.display || 'Shift + E';
+          const shortcutDisplay = settings?.captureShortcut?.display || 'Ctrl + `';
           const kbdParts = shortcutDisplay.split(' + ').map(p => `<kbd>${p.trim()}</kbd>`).join(' + ');
           emptyDesc.innerHTML = `Press ${kbdParts} while browsing any page or right-click any link, image, or text to save to Sticky.`;
         }).catch(() => {
-          emptyDesc.innerHTML = 'Press <kbd>Shift</kbd> + <kbd>E</kbd> while browsing any page or right-click any link, image, or text to save to Sticky.';
+          emptyDesc.innerHTML = 'Press <kbd>Ctrl</kbd> + <kbd>`</kbd> while browsing any page or right-click any link, image, or text to save to Sticky.';
         });
         emptyCreateNoteBtn.style.display = 'inline-flex';
       }

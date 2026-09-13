@@ -39,7 +39,7 @@ function setupContextMenus() {
     // 4. Save entire page
     ext.contextMenus.create({
       id: 'sticky-save-page',
-      title: 'Save Page to Sticky (Shift+E)',
+      title: 'Save Page to Sticky (Ctrl + `)',
       contexts: ['page']
     });
 
