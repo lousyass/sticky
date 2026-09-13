@@ -4,12 +4,6 @@ A friction-free, local-only Firefox browser extension to capture links, social p
 
 ---
 
-## Install
-
-[Install Sticky from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/sticky/)
-
----
-
 ## What Sticky Does
 
 While scrolling feeds (Reddit, YouTube, Instagram, articles, or documentation), you often stumble upon links, discussions, or videos you want to revisit later. Bookmarking them clutters browser bookmarks, and copying links into note apps breaks your flow.
@@ -35,17 +29,34 @@ Sticky solves this:
 
 ---
 
-## Using Sticky
+## How to Test in Firefox
 
-### Customizing Keyboard Shortcuts
+1. Open **Firefox**.
+2. In the address bar, navigate to:
+   ```text
+   about:debugging#/runtime/this-firefox
+   ```
+3. Click the **"Load Temporary Add-on..."** button.
+4. Browse to this directory (`sticky/`) and select **`manifest.json`**.
+5. Sticky is now loaded and active!
+   - Press <kbd>Ctrl</kbd> + <kbd>`</kbd> on any tab to save.
+   - Click the Sticky icon in your Firefox toolbar or press <kbd>Alt</kbd> + <kbd>L</kbd> to open your **Library**.
 
-#### Option 1: In-App Shortcut Customizer (Recommended)
+### Firefox Add-ons (Pending Approval)
+Once reviewed and approved on Mozilla Add-ons (AMO), you can also install and test it directly from:
+👉 **[Sticky on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/sticky/)**
+
+---
+
+## Customizing Keyboard Shortcuts
+
+### Option 1: In-App Shortcut Customizer (Recommended)
 1. Open Sticky Library and click **"Options"** (or right-click extension icon &rarr; **Options**).
 2. Under **"Capture Keyboard Shortcut"**, click the shortcut recording box.
 3. Press any key combination you prefer (e.g. <kbd>Shift</kbd> + <kbd>E</kbd>, <kbd>Alt</kbd> + <kbd>S</kbd>, <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd>, etc.).
 4. Click **"Save Shortcut"**. The new key combination applies immediately across all pages without restarting the browser.
 
-#### Option 2: Firefox Global Browser Shortcuts
+### Option 2: Firefox Global Browser Shortcuts
 Firefox also manages global browser-level extension shortcuts:
 1. In Firefox, go to `about:addons`.
 2. Click the **gear icon (⚙)** in the top-right corner.
@@ -82,28 +93,6 @@ sticky/
     ├── icon-96.png
     └── icon-128.png
 ```
-
----
-
-## Development & Testing
-
-### Testing the AMO Release
-Once approved and live on Mozilla Add-ons, install or test directly from:
-👉 **[Sticky on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/sticky/)**
-
-### Running Locally from Source
-To run Sticky from source for local development or testing:
-
-1. Open **Firefox**.
-2. In the address bar, navigate to:
-   ```text
-   about:debugging#/runtime/this-firefox
-   ```
-3. Click the **"Load Temporary Add-on..."** button.
-4. Browse to this directory (`sticky/`) and select **`manifest.json`**.
-5. Sticky is now loaded and active!
-   - Press <kbd>Ctrl</kbd> + <kbd>`</kbd> on any tab to save.
-   - Click the Sticky icon in your Firefox toolbar or press <kbd>Alt</kbd> + <kbd>L</kbd> to open your **Library**.
 
 ---
 
