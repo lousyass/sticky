@@ -9,9 +9,10 @@ A friction-free, local-only Firefox browser extension to capture links, social p
 While scrolling feeds (Reddit, YouTube, Instagram, articles, or documentation), you often stumble upon links, discussions, or videos you want to revisit later. Bookmarking them clutters browser bookmarks, and copying links into note apps breaks your flow.
 
 Sticky solves this:
-- **Instant Save via Shortcut (`Alt+S`)**:
+- **Instant Save via Shortcut (Default: `Shift + E`, Fully Customizable)**:
   - **On any generic page**: captures URL, page title, Open Graph / Twitter card preview image, or site favicon. If no preview image exists, falls back to a screenshot thumbnail.
   - **On Reddit specifically**: automatically detects which post is currently under your cursor or centered in your viewport and saves *that post's* permalink and title instead of the generic feed URL.
+  - **Customizable Keys**: Customize the shortcut directly in **Sticky Settings &rarr; Capture Keyboard Shortcut** with an interactive key recorder, or reset to default <kbd>Shift</kbd> + <kbd>E</kbd> anytime.
 - **Right-Click Context Menu**:
   - Save links, images, selected text quotes, or whole pages via right-click without interrupting your flow.
 - **Two Save Types**:
@@ -38,18 +39,25 @@ Sticky solves this:
 3. Click the **"Load Temporary Add-on..."** button.
 4. Browse to this directory (`sticky/`) and select **`manifest.json`**.
 5. Sticky is now loaded and active!
-   - Press <kbd>Alt</kbd> + <kbd>S</kbd> on any tab to save.
+   - Press <kbd>Shift</kbd> + <kbd>E</kbd> on any tab to save.
    - Click the Sticky icon in your Firefox toolbar or press <kbd>Alt</kbd> + <kbd>L</kbd> to open your **Library**.
 
 ---
 
 ## Customizing Keyboard Shortcuts
 
-Firefox manages extension shortcuts natively:
+### Option 1: In-App Shortcut Customizer (Recommended)
+1. Open Sticky Library and click **"Options"** (or right-click extension icon &rarr; **Options**).
+2. Under **"Capture Keyboard Shortcut"**, click the shortcut recording box.
+3. Press any key combination you prefer (e.g. <kbd>Shift</kbd> + <kbd>E</kbd>, <kbd>Alt</kbd> + <kbd>S</kbd>, <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd>, etc.).
+4. Click **"Save Shortcut"**. The new key combination applies immediately across all pages without restarting the browser.
+
+### Option 2: Firefox Global Browser Shortcuts
+Firefox also manages global browser-level extension shortcuts:
 1. In Firefox, go to `about:addons`.
 2. Click the **gear icon (⚙)** in the top-right corner.
 3. Click **"Manage Extension Shortcuts"**.
-4. Find **Sticky** and assign your preferred key combinations.
+4. Find **Sticky** and assign your preferred browser command.
 
 ---
 

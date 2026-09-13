@@ -332,4 +332,86 @@
       }
     });
   }
+
+  // ==========================================
+  // IN-PAGE KEYBOARD SHORTCUT LISTENER
+  // ==========================================
+
+  let activeShortcut = {
+    key: 'e',
+    code: 'KeyE',
+    shiftKey: true,
+    ctrlKey: false,
+    altKey: false,
+    metaKey: false
+  };
+
+  async function loadShortcutConfig() {
+    try {
+      if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
+        const result = await browser.storage.local.get('sticky_settings');
+        if (result && result.sticky_settings && result.sticky_settings.captureShortcut) {
+          activeShortcut = result.sticky_settings.captureShortcut;
+        }
+      } else if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get('sticky_settings', (result) => {
+          if (result && result.sticky_settings && result.sticky_settings.captureShortcut) {
+            activeShortcut = result.sticky_settings.captureShortcut;
+          }
+        });
+      }
+    } catch (err) {
+      // Use default Shift+E
+    }
+  }
+
+  const storageOnChanged = (typeof browser !== 'undefined' && browser.storage && browser.storage.onChanged) ? browser.storage.onChanged :
+                           (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) ? chrome.storage.onChanged : null;
+  if (storageOnChanged) {
+    storageOnChanged.addListener((changes, area) => {
+      if (area === 'local' && changes.sticky_settings) {
+        if (changes.sticky_settings.newValue && changes.sticky_settings.newValue.captureShortcut) {
+          activeShortcut = changes.sticky_settings.newValue.captureShortcut;
+        }
+      }
+    });
+  }
+
+  function isEditableElement(elem) {
+    if (!elem) return false;
+    const tagName = elem.tagName ? elem.tagName.toLowerCase() : '';
+    if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') return true;
+    if (elem.isContentEditable) return true;
+    if (elem.getAttribute && elem.getAttribute('role') === 'textbox') return true;
+    return false;
+  }
+
+  function handleKeydown(e) {
+    if (!activeShortcut) return;
+    if (isEditableElement(e.target)) return;
+
+    // Normalize keys
+    const pressedKey = (e.key || '').toLowerCase();
+    const targetKey = (activeShortcut.key || '').toLowerCase();
+    const pressedCode = e.code || '';
+    const targetCode = activeShortcut.code || '';
+
+    const keyMatches = (pressedKey === targetKey) || (targetCode && pressedCode === targetCode);
+    const shiftMatches = Boolean(e.shiftKey) === Boolean(activeShortcut.shiftKey);
+    const ctrlMatches = Boolean(e.ctrlKey) === Boolean(activeShortcut.ctrlKey);
+    const altMatches = Boolean(e.altKey) === Boolean(activeShortcut.altKey);
+    const metaMatches = Boolean(e.metaKey) === Boolean(activeShortcut.metaKey);
+
+    if (keyMatches && shiftMatches && ctrlMatches && altMatches && metaMatches) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (runtimeAPI && runtimeAPI.sendMessage) {
+        runtimeAPI.sendMessage({ type: 'TRIGGER_CAPTURE_FROM_PAGE' }).catch(() => {});
+      }
+    }
+  }
+
+  window.addEventListener('keydown', handleKeydown, true);
+  loadShortcutConfig();
 })();

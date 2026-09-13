@@ -35,9 +35,15 @@
     "scripting"
   ],
   "host_permissions": [
-    "*://*.reddit.com/*"
+    "<all_urls>"
   ],
   "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-scripts/generic.js"],
+      "css": ["content-scripts/toast.css"],
+      "run_at": "document_idle"
+    },
     {
       "matches": ["*://*.reddit.com/*"],
       "js": ["content-scripts/reddit.js"],
@@ -47,8 +53,8 @@
   "commands": {
     "save-to-sticky": {
       "suggested_key": {
-        "default": "Alt+S",
-        "mac": "MacCtrl+S"
+        "default": "Alt+Shift+E",
+        "mac": "MacCtrl+Shift+E"
       },
       "description": "Save focused Reddit post or current page to Sticky"
     },

@@ -10,6 +10,15 @@
   const newLabelName = document.getElementById('new-label-name');
   const labelsList = document.getElementById('labels-list');
 
+  // Shortcut Customizer Elements
+  const currentShortcutBadge = document.getElementById('current-shortcut-badge');
+  const shortcutRecorder = document.getElementById('shortcut-recorder');
+  const recorderIdleView = document.getElementById('recorder-idle-view');
+  const recorderActiveView = document.getElementById('recorder-active-view');
+  const btnSaveShortcut = document.getElementById('btn-save-shortcut');
+  const btnResetShortcut = document.getElementById('btn-reset-shortcut');
+  const shortcutSaveFeedback = document.getElementById('shortcut-save-feedback');
+
   const btnCopyShortcutUrl = document.getElementById('btn-copy-shortcut-url');
   const copyFeedback = document.getElementById('copy-feedback');
 
@@ -18,6 +27,19 @@
   const importFileInput = document.getElementById('import-file-input');
   const importStatus = document.getElementById('import-status');
 
+  let candidateShortcut = null;
+  let isRecording = false;
+
+  const DEFAULT_SHORTCUT = {
+    display: 'Shift + E',
+    key: 'e',
+    code: 'KeyE',
+    shiftKey: true,
+    ctrlKey: false,
+    altKey: false,
+    metaKey: false
+  };
+
   // ==========================================
   // INITIALIZATION
   // ==========================================
@@ -25,11 +47,22 @@
   async function init() {
     setupEventListeners();
     await loadLabels();
+    await loadShortcut();
   }
 
   function setupEventListeners() {
     // Add Label Form
     createLabelForm.addEventListener('submit', handleCreateLabel);
+
+    // Shortcut Customizer Events
+    shortcutRecorder.addEventListener('click', startRecording);
+    shortcutRecorder.addEventListener('keydown', handleRecordingKeyDown);
+    shortcutRecorder.addEventListener('blur', () => {
+      if (isRecording) stopRecording(false);
+    });
+
+    btnSaveShortcut.addEventListener('click', handleSaveShortcut);
+    btnResetShortcut.addEventListener('click', handleResetShortcut);
 
     // Copy Shortcut Instructions
     btnCopyShortcutUrl.addEventListener('click', () => {
@@ -54,6 +87,192 @@
     });
 
     importFileInput.addEventListener('change', handleImportFileSelected);
+  }
+
+  // ==========================================
+  // SHORTCUT MANAGEMENT
+  // ==========================================
+
+  async function loadShortcut() {
+    try {
+      const settings = await StickyStorage.getSettings();
+      const shortcut = settings.captureShortcut || DEFAULT_SHORTCUT;
+      renderShortcutBadge(shortcut);
+    } catch (err) {
+      console.error('Failed to load shortcut:', err);
+      renderShortcutBadge(DEFAULT_SHORTCUT);
+    }
+  }
+
+  function renderShortcutBadge(shortcut) {
+    currentShortcutBadge.innerHTML = '';
+    const parts = (shortcut.display || 'Shift + E').split(' + ');
+    parts.forEach((part, index) => {
+      const kbd = document.createElement('kbd');
+      kbd.textContent = part.trim();
+      currentShortcutBadge.appendChild(kbd);
+
+      if (index < parts.length - 1) {
+        currentShortcutBadge.appendChild(document.createTextNode(' + '));
+      }
+    });
+  }
+
+  function startRecording() {
+    isRecording = true;
+    shortcutRecorder.classList.add('recording');
+    recorderIdleView.style.display = 'none';
+    recorderActiveView.style.display = 'flex';
+    recorderActiveView.innerHTML = `
+      <span class="recording-pulse"></span>
+      <span>Press keys now (e.g. Shift + E, Alt + S)...</span>
+    `;
+    shortcutRecorder.focus();
+  }
+
+  function stopRecording(hasRecordedKey = false) {
+    isRecording = false;
+    shortcutRecorder.classList.remove('recording');
+    recorderActiveView.style.display = 'none';
+    recorderIdleView.style.display = 'flex';
+
+    if (!hasRecordedKey) {
+      recorderIdleView.innerHTML = `
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+        </svg>
+        <span>Click here to record a new key combination</span>
+      `;
+    }
+  }
+
+  function handleRecordingKeyDown(e) {
+    if (!isRecording) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Cancel on Escape
+    if (e.key === 'Escape') {
+      stopRecording(false);
+      return;
+    }
+
+    // Ignore standalone modifier presses until primary key is pressed
+    if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) {
+      const activeMods = [];
+      if (e.ctrlKey) activeMods.push('Ctrl');
+      if (e.altKey) activeMods.push('Alt');
+      if (e.shiftKey) activeMods.push('Shift');
+      if (e.metaKey) activeMods.push('Cmd');
+      recorderActiveView.innerHTML = `
+        <span class="recording-pulse"></span>
+        <span>${activeMods.join(' + ')} + ...</span>
+      `;
+      return;
+    }
+
+    // Determine primary key name
+    let primaryKey = e.key.toUpperCase();
+    if (e.code && e.code.startsWith('Key')) {
+      primaryKey = e.code.replace('Key', '');
+    } else if (e.code && e.code.startsWith('Digit')) {
+      primaryKey = e.code.replace('Digit', '');
+    }
+
+    const parts = [];
+    if (e.ctrlKey) parts.push('Ctrl');
+    if (e.altKey) parts.push('Alt');
+    if (e.shiftKey) parts.push('Shift');
+    if (e.metaKey) parts.push('Cmd');
+    parts.push(primaryKey);
+
+    const displayString = parts.join(' + ');
+
+    candidateShortcut = {
+      display: displayString,
+      key: e.key.toLowerCase(),
+      code: e.code,
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
+      altKey: e.altKey,
+      metaKey: e.metaKey
+    };
+
+    stopRecording(true);
+    recorderIdleView.innerHTML = `
+      <span style="color:var(--text-primary);">Recorded: <strong>${displayString}</strong></span>
+      <span style="color:var(--text-muted);font-size:12px;">(Click "Save Shortcut" below to apply)</span>
+    `;
+    btnSaveShortcut.disabled = false;
+  }
+
+  async function handleSaveShortcut() {
+    if (!candidateShortcut) return;
+
+    btnSaveShortcut.disabled = true;
+    try {
+      await StickyStorage.saveSettings({ captureShortcut: candidateShortcut });
+      renderShortcutBadge(candidateShortcut);
+
+      // Attempt to sync browser command if shortcut has Ctrl or Alt
+      const ext = typeof browser !== 'undefined' ? browser : chrome;
+      if (ext && ext.commands && ext.commands.update && (candidateShortcut.ctrlKey || candidateShortcut.altKey)) {
+        try {
+          const cmdParts = [];
+          if (candidateShortcut.ctrlKey) cmdParts.push('Ctrl');
+          if (candidateShortcut.altKey) cmdParts.push('Alt');
+          if (candidateShortcut.shiftKey) cmdParts.push('Shift');
+          cmdParts.push(candidateShortcut.key.toUpperCase());
+          await ext.commands.update({
+            name: 'save-to-sticky',
+            shortcut: cmdParts.join('+')
+          });
+        } catch (cmdErr) {
+          // Ignore if command format not accepted by browser
+        }
+      }
+
+      shortcutSaveFeedback.style.display = 'inline';
+      shortcutSaveFeedback.textContent = `✓ Shortcut saved as ${candidateShortcut.display}!`;
+      setTimeout(() => {
+        shortcutSaveFeedback.style.display = 'none';
+      }, 3500);
+
+      recorderIdleView.innerHTML = `
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+        </svg>
+        <span>Click here to record a new key combination</span>
+      `;
+      candidateShortcut = null;
+    } catch (err) {
+      alert(`Could not save shortcut: ${err.message}`);
+      btnSaveShortcut.disabled = false;
+    }
+  }
+
+  async function handleResetShortcut() {
+    try {
+      await StickyStorage.saveSettings({ captureShortcut: DEFAULT_SHORTCUT });
+      renderShortcutBadge(DEFAULT_SHORTCUT);
+
+      shortcutSaveFeedback.style.display = 'inline';
+      shortcutSaveFeedback.textContent = '✓ Shortcut reset to default (Shift + E)!';
+      setTimeout(() => {
+        shortcutSaveFeedback.style.display = 'none';
+      }, 3500);
+
+      recorderIdleView.innerHTML = `
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+        </svg>
+        <span>Click here to record a new key combination</span>
+      `;
+      btnSaveShortcut.disabled = true;
+      candidateShortcut = null;
+    } catch (err) {
+      alert(`Could not reset shortcut: ${err.message}`);
+    }
   }
 
   // ==========================================

@@ -39,7 +39,7 @@ function setupContextMenus() {
     // 4. Save entire page
     ext.contextMenus.create({
       id: 'sticky-save-page',
-      title: 'Save Page to Sticky (Alt+S)',
+      title: 'Save Page to Sticky (Shift+E)',
       contexts: ['page']
     });
 
@@ -470,6 +470,24 @@ async function openLibraryPage() {
 // ==========================================
 
 ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'TRIGGER_CAPTURE_FROM_PAGE') {
+    const targetTab = sender.tab;
+    if (targetTab) {
+      handleSaveCurrentTab(targetTab)
+        .then(() => sendResponse({ success: true }))
+        .catch(err => sendResponse({ success: false, error: err.message }));
+    } else {
+      ext.tabs.query({ active: true, currentWindow: true }).then(([activeTab]) => {
+        if (activeTab) {
+          handleSaveCurrentTab(activeTab)
+            .then(() => sendResponse({ success: true }))
+            .catch(err => sendResponse({ success: false, error: err.message }));
+        }
+      });
+    }
+    return true;
+  }
+
   if (message.type === 'UPDATE_SAVED_ITEM') {
     StickyStorage.updateItem(message.itemId, message.updates)
       .then(res => sendResponse({ success: true, item: res }))

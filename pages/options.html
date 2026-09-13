@@ -58,36 +58,61 @@
       <!-- Section 2: Keyboard Shortcuts -->
       <section class="settings-card">
         <div class="card-header">
-          <h2>Keyboard Shortcuts</h2>
-          <p class="section-desc">Quickly capture content without leaving your current tab.</p>
+          <h2>Capture Keyboard Shortcut</h2>
+          <p class="section-desc">Customize the key combination used to capture links, posts, and notes while browsing.</p>
         </div>
 
-        <div class="shortcut-item">
-          <div class="shortcut-info">
-            <div class="shortcut-name">Capture focused post or page</div>
-            <div class="shortcut-desc">Saves Reddit post under cursor or current tab metadata</div>
+        <div class="shortcut-config-container">
+          <div class="shortcut-current-row">
+            <div>
+              <div class="shortcut-name">Active Capture Shortcut</div>
+              <div class="shortcut-desc">Press this on any webpage to save to Sticky (ignored while typing in text boxes)</div>
+            </div>
+            <div id="current-shortcut-badge" class="shortcut-badge">
+              <kbd>Shift</kbd> + <kbd>E</kbd>
+            </div>
           </div>
-          <div class="shortcut-badge">
-            <kbd>Alt</kbd> + <kbd>S</kbd>
+
+          <!-- Interactive Recorder Box -->
+          <div class="shortcut-recorder-wrap">
+            <div id="shortcut-recorder" class="shortcut-recorder" tabindex="0">
+              <div id="recorder-idle-view" class="recorder-idle-view">
+                <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                  <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                </svg>
+                <span>Click here to record a new key combination</span>
+              </div>
+              <div id="recorder-active-view" class="recorder-active-view" style="display: none;">
+                <span class="recording-pulse"></span>
+                <span>Press your desired keys now (e.g. Shift + E, Alt + S)...</span>
+              </div>
+            </div>
+
+            <div class="shortcut-actions-row">
+              <button id="btn-save-shortcut" class="btn btn-primary" disabled>
+                Save Shortcut
+              </button>
+              <button id="btn-reset-shortcut" class="btn btn-secondary" title="Reset shortcut to Shift + E">
+                Reset to Default (Shift + E)
+              </button>
+              <span id="shortcut-save-feedback" class="shortcut-feedback" style="display: none;">
+                ✓ Shortcut saved!
+              </span>
+            </div>
           </div>
         </div>
 
+        <!-- Firefox Native Command Info -->
         <div class="shortcut-note-box">
           <div class="note-title">
             <svg viewBox="0 0 20 20" fill="currentColor" class="note-icon">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
-            How to customize shortcut keys in Firefox
+            Firefox Global Browser Shortcut
           </div>
           <p class="note-body">
-            Firefox manages extension shortcuts natively. To remap <kbd>Alt+S</kbd> to your preferred keys:
+            In addition to in-page capture, Firefox allows configuring a global browser shortcut under <code>about:addons</code> &rarr; ⚙ &rarr; "Manage Extension Shortcuts".
           </p>
-          <ol class="shortcut-steps">
-            <li>Type <code>about:addons</code> in your Firefox address bar and press Enter</li>
-            <li>Click the <strong>gear icon (⚙)</strong> at the top right of the page</li>
-            <li>Select <strong>"Manage Extension Shortcuts"</strong></li>
-            <li>Find <strong>Sticky</strong> and enter your custom shortcut</li>
-          </ol>
           <div class="shortcut-btn-row">
             <button id="btn-copy-shortcut-url" class="btn btn-secondary">
               Copy about:addons Link
