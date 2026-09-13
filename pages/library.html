@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sticky — Your Saved Library</title>
+  <link rel="icon" type="image/png" href="../icons/icon-32.png">
+  <link rel="stylesheet" href="library.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="brand">
+        <img src="../icons/icon-48.png" alt="Sticky Logo" class="brand-logo">
+        <span class="brand-name">Sticky</span>
+        <span class="brand-subtitle">Library</span>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btn-add-note" class="btn btn-primary" title="Quickly jot down a note without a URL">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add Note
+        </button>
+        <a href="options.html" class="btn btn-secondary" title="Manage labels, shortcuts, and backups">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+          </svg>
+          Options
+        </a>
+      </div>
+    </header>
+
+    <!-- Controls Bar (Search, Filter, Sort) -->
+    <div class="controls-section">
+      <div class="search-sort-row">
+        <!-- Search Input -->
+        <div class="search-box">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="search-icon">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          <input type="text" id="search-input" placeholder="Search saved items, notes, URLs..." autocomplete="off">
+          <button id="search-clear-btn" class="clear-btn" title="Clear search" style="display: none;">&times;</button>
+        </div>
+
+        <!-- View Type Tabs -->
+        <div class="view-tabs" role="tablist">
+          <button class="tab-btn active" data-type="all">All</button>
+          <button class="tab-btn" data-type="link">Links</button>
+          <button class="tab-btn" data-type="note">Notes</button>
+          <button class="tab-btn" data-type="unread">Unread</button>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="sort-box">
+          <label for="sort-select">Sort:</label>
+          <select id="sort-select">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title">Title (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Labels Filter Row -->
+      <div class="labels-filter-bar">
+        <span class="filter-label-title">Filter by label:</span>
+        <div id="label-pills-container" class="label-pills-container">
+          <!-- Dynamic label pills rendered here -->
+        </div>
+        <button id="clear-label-filters-btn" class="btn-text" style="display: none;">Clear labels</button>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="content-container">
+      <div class="status-summary">
+        <span id="items-count-text">Loading items...</span>
+      </div>
+
+      <!-- Grid for Saved Items -->
+      <div id="items-grid" class="items-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-icon">📌</div>
+        <h3 id="empty-title">Nothing saved yet</h3>
+        <p id="empty-desc">
+          Press <kbd>Alt+S</kbd> while browsing any page or right-click any link, image, or text to save to Sticky.
+        </p>
+        <button id="empty-create-note-btn" class="btn btn-primary">Create Your First Note</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Note / Item Edit Modal -->
+  <div id="item-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-heading">Add Note</h3>
+        <button id="modal-close-btn" class="modal-close">&times;</button>
+      </div>
+      <form id="item-form" class="modal-form">
+        <input type="hidden" id="modal-item-id">
+        <input type="hidden" id="modal-item-type" value="note">
+
+        <div class="form-group">
+          <label for="modal-title">Title</label>
+          <input type="text" id="modal-title" placeholder="Note or item title..." required>
+        </div>
+
+        <div class="form-group" id="group-modal-url" style="display: none;">
+          <label for="modal-url">URL</label>
+          <input type="url" id="modal-url" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label for="modal-note">Note / Thoughts</label>
+          <textarea id="modal-note" rows="4" placeholder="Write thoughts, key takeaways, or follow-ups..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Labels</label>
+          <div id="modal-labels-container" class="modal-labels-container">
+            <!-- Checkbox/pills for labels -->
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../lib/db.js"></script>
+  <script src="../lib/storage.js"></script>
+  <script src="library.js"></script>
+</body>
+</html>

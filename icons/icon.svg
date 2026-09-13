@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD166"/>
+      <stop offset="100%" stop-color="#F77F00"/>
+    </linearGradient>
+    <linearGradient id="foldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E85D04"/>
+      <stop offset="100%" stop-color="#D00000"/>
+    </linearGradient>
+    <linearGradient id="pinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A4C93"/>
+      <stop offset="100%" stop-color="#1982C4"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Main Note Body with folded bottom-right corner -->
+  <path d="M 24 16
+           L 104 16
+           A 8 8 0 0 1 112 24
+           L 112 84
+           L 84 112
+           L 24 112
+           A 8 8 0 0 1 16 104
+           L 16 24
+           A 8 8 0 0 1 24 16 Z"
+        fill="url(#bgGrad)"
+        filter="url(#shadow)"/>
+
+  <!-- Folded Corner -->
+  <path d="M 84 84
+           L 112 84
+           L 84 112 Z"
+        fill="url(#foldGrad)"
+        opacity="0.95"/>
+
+  <!-- Subtle note lines -->
+  <line x1="32" y1="44" x2="96" y2="44" stroke="#9A3412" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+  <line x1="32" y1="62" x2="86" y2="62" stroke="#9A3412" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+  <line x1="32" y1="80" x2="68" y2="80" stroke="#9A3412" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- Pin icon at top-center -->
+  <circle cx="64" cy="18" r="8" fill="url(#pinGrad)"/>
+  <circle cx="64" cy="18" r="4" fill="#FFFFFF" opacity="0.8"/>
+</svg>

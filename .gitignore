@@ -1,0 +1,23 @@
+# Node modules & package locks
+node_modules/
+package-lock.json
+
+# Web extension build artifacts & bundles
+web-ext-artifacts/
+*.zip
+*.xpi
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor & IDE configs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary scratch and logs
+scratch/
+*.log

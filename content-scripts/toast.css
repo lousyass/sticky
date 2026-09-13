@@ -1,0 +1,180 @@
+/* Floating capture HUD / Toast for Sticky */
+#sticky-hud-toast-container {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 2147483647 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  color: #1f2937 !important;
+  pointer-events: none !important;
+}
+
+.sticky-toast-card {
+  pointer-events: auto !important;
+  width: 340px !important;
+  max-width: calc(100vw - 48px) !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  padding: 14px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  transform: translateY(20px) scale(0.96) !important;
+  opacity: 0 !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease !important;
+  box-sizing: border-box !important;
+}
+
+.sticky-toast-card.sticky-visible {
+  transform: translateY(0) scale(1) !important;
+  opacity: 1 !important;
+}
+
+.sticky-toast-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  padding-bottom: 8px !important;
+}
+
+.sticky-toast-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: #d97706 !important;
+}
+
+.sticky-toast-brand svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.sticky-toast-badge {
+  font-size: 11px !important;
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  font-weight: 600 !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.sticky-toast-close {
+  background: transparent !important;
+  border: none !important;
+  color: #9ca3af !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  padding: 2px !important;
+  border-radius: 4px !important;
+  transition: color 0.15s ease !important;
+}
+
+.sticky-toast-close:hover {
+  color: #4b5563 !important;
+}
+
+.sticky-toast-body {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: flex-start !important;
+}
+
+.sticky-toast-thumb {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 8px !important;
+  object-fit: cover !important;
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  flex-shrink: 0 !important;
+}
+
+.sticky-toast-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.sticky-toast-title {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin-bottom: 2px !important;
+}
+
+.sticky-toast-source {
+  font-size: 11px !important;
+  color: #6b7280 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Quick Labels Selection */
+.sticky-toast-labels {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  padding-top: 4px !important;
+}
+
+.sticky-toast-label-pill {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  border: 1px solid #e5e7eb !important;
+  background: #f9fafb !important;
+  color: #4b5563 !important;
+  transition: all 0.15s ease !important;
+  user-select: none !important;
+}
+
+.sticky-toast-label-pill:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+.sticky-toast-label-pill.sticky-active {
+  background: var(--label-color, #f59e0b) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+/* Quick Note Input */
+.sticky-toast-note-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  outline: none !important;
+  font-family: inherit !important;
+  color: #1f2937 !important;
+  background: #f9fafb !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.sticky-toast-note-input:focus {
+  border-color: #f59e0b !important;
+  background: #ffffff !important;
+}
+
+.sticky-toast-note-input::placeholder {
+  color: #9ca3af !important;
+}

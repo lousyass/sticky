@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sticky — Options & Settings</title>
+  <link rel="icon" type="image/png" href="../icons/icon-32.png">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <!-- Header -->
+    <header class="options-header">
+      <div class="brand">
+        <img src="../icons/icon-48.png" alt="Sticky Logo" class="brand-logo">
+        <div>
+          <h1 class="brand-title">Sticky Settings</h1>
+          <p class="brand-tagline">Manage labels, shortcuts, and backup data</p>
+        </div>
+      </div>
+      <a href="library.html" class="btn btn-secondary">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Back to Library
+      </a>
+    </header>
+
+    <div class="settings-grid">
+      <!-- Section 1: Label Management -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2>Labels & Categories</h2>
+          <p class="section-desc">Create and customize labels to organize your saved links and notes.</p>
+        </div>
+
+        <!-- Add New Label Form -->
+        <form id="create-label-form" class="label-create-row">
+          <div class="input-color-wrap">
+            <input type="color" id="new-label-color" value="#F59E0B" title="Choose label color">
+          </div>
+          <input type="text" id="new-label-name" placeholder="New label name (e.g. Reading, Work, Recipe)..." required maxlength="30">
+          <button type="submit" class="btn btn-primary">Add Label</button>
+        </form>
+
+        <!-- Existing Labels List -->
+        <div class="labels-list-wrap">
+          <div class="labels-list-header">
+            <span>Color & Label</span>
+            <span>Actions</span>
+          </div>
+          <div id="labels-list" class="labels-list">
+            <!-- Dynamic Labels rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Keyboard Shortcuts -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2>Keyboard Shortcuts</h2>
+          <p class="section-desc">Quickly capture content without leaving your current tab.</p>
+        </div>
+
+        <div class="shortcut-item">
+          <div class="shortcut-info">
+            <div class="shortcut-name">Capture focused post or page</div>
+            <div class="shortcut-desc">Saves Reddit post under cursor or current tab metadata</div>
+          </div>
+          <div class="shortcut-badge">
+            <kbd>Alt</kbd> + <kbd>S</kbd>
+          </div>
+        </div>
+
+        <div class="shortcut-note-box">
+          <div class="note-title">
+            <svg viewBox="0 0 20 20" fill="currentColor" class="note-icon">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            How to customize shortcut keys in Firefox
+          </div>
+          <p class="note-body">
+            Firefox manages extension shortcuts natively. To remap <kbd>Alt+S</kbd> to your preferred keys:
+          </p>
+          <ol class="shortcut-steps">
+            <li>Type <code>about:addons</code> in your Firefox address bar and press Enter</li>
+            <li>Click the <strong>gear icon (⚙)</strong> at the top right of the page</li>
+            <li>Select <strong>"Manage Extension Shortcuts"</strong></li>
+            <li>Find <strong>Sticky</strong> and enter your custom shortcut</li>
+          </ol>
+          <div class="shortcut-btn-row">
+            <button id="btn-copy-shortcut-url" class="btn btn-secondary">
+              Copy about:addons Link
+            </button>
+            <span id="copy-feedback" class="copy-feedback" style="display: none;">Copied!</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Backup & Restore -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2>Data Backup & Restore</h2>
+          <p class="section-desc">Sticky is 100% local with no cloud storage. Export your data to keep a personal backup or transfer between computers.</p>
+        </div>
+
+        <div class="backup-actions">
+          <div class="backup-col">
+            <h3>Export Backup</h3>
+            <p>Download all saved links, notes, labels, and cached thumbnails as a JSON file.</p>
+            <button id="btn-export-backup" class="btn btn-primary">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+              Export to JSON
+            </button>
+          </div>
+
+          <div class="backup-divider"></div>
+
+          <div class="backup-col">
+            <h3>Import Backup</h3>
+            <p>Restore items and labels from a previously exported Sticky JSON file.</p>
+            
+            <div class="import-mode-row">
+              <label class="radio-label">
+                <input type="radio" name="import-mode" value="merge" checked>
+                <span>Merge with existing items</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="import-mode" value="replace">
+                <span>Replace all data</span>
+              </label>
+            </div>
+
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            <button id="btn-trigger-import" class="btn btn-secondary">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+              Select JSON File to Import
+            </button>
+            <div id="import-status" class="import-status" style="display: none;"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../lib/db.js"></script>
+  <script src="../lib/storage.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
