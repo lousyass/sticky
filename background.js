@@ -59,36 +59,18 @@ function setupContextMenus() {
   });
 }
 
-// Inject generic content script into existing tabs on startup/install so shortcuts work immediately
-async function injectIntoExistingTabs() {
-  if (!ext.tabs || !ext.tabs.query) return;
-  try {
-    const tabs = await ext.tabs.query({});
-    for (const tab of tabs) {
-      if (tab && tab.id && tab.url && !isRestrictedUrl(tab.url)) {
-        ensureGenericScriptInjected(tab.id).catch(() => {});
-      }
-    }
-  } catch (err) {
-    // Ignore query errors
-  }
-}
-
-// Ensure context menus and content scripts are active on install and startup
+// Ensure context menus are created on install and startup
 if (ext.runtime.onInstalled) {
   ext.runtime.onInstalled.addListener(() => {
     setupContextMenus();
-    injectIntoExistingTabs();
   });
 }
 if (ext.runtime.onStartup) {
   ext.runtime.onStartup.addListener(() => {
     setupContextMenus();
-    injectIntoExistingTabs();
   });
 }
 setupContextMenus();
-injectIntoExistingTabs();
 
 // ==========================================
 // TOOLBAR ACTION & COMMAND LISTENERS
@@ -123,7 +105,7 @@ if (ext.contextMenus && ext.contextMenus.onClicked) {
       return;
     }
 
-    if (!tab || !tab.id) {
+    if (!tab) {
       const [activeTab] = await ext.tabs.query({ active: true, currentWindow: true });
       tab = activeTab;
     }
@@ -450,25 +432,16 @@ function extractYouTubeVideoId(urlStr) {
 async function fetchImageAsDataUrl(url) {
   if (url.startsWith('data:')) return url;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3000);
+  const response = await fetch(url, { mode: 'cors' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const blob = await response.blob();
 
-  try {
-    const response = await fetch(url, { mode: 'cors', signal: controller.signal });
-    clearTimeout(timer);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const blob = await response.blob();
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch (err) {
-    clearTimeout(timer);
-    throw err;
-  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 /**

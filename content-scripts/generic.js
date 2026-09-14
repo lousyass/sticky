@@ -5,9 +5,8 @@
  */
 
 (function () {
-  // Prevent duplicate execution on repeated on-demand injections
-  if (window.__stickyGenericInjected || window.__stickyGenericInitialized) return;
-  window.__stickyGenericInjected = true;
+  // Prevent duplicate execution
+  if (window.__stickyGenericInitialized) return;
   window.__stickyGenericInitialized = true;
 
   const runtimeAPI = (typeof browser !== 'undefined' && browser.runtime) ? browser.runtime :
@@ -123,7 +122,20 @@
     // 1. If on video watch page or shorts
     const videoId = extractYouTubeVideoId(window.location.href);
     if (videoId) {
-      const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+      const ogImg = document.querySelector('meta[property="og:image"], meta[name="og:image"]');
+      const twImg = document.querySelector('meta[name="twitter:image"], meta[property="twitter:image"]');
+      const videoEl = document.querySelector('video[poster]');
+
+      let thumbnailUrl = null;
+      if (ogImg && ogImg.content && !isGenericSiteLogo(ogImg.content)) {
+        thumbnailUrl = toAbsoluteUrl(ogImg.content);
+      } else if (twImg && twImg.content && !isGenericSiteLogo(twImg.content)) {
+        thumbnailUrl = toAbsoluteUrl(twImg.content);
+      } else if (videoEl && videoEl.poster && !isGenericSiteLogo(videoEl.poster)) {
+        thumbnailUrl = toAbsoluteUrl(videoEl.poster);
+      } else {
+        thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+      }
       
       let title = '';
       const metaTitle = document.querySelector('meta[name="title"], meta[property="og:title"], meta[name="twitter:title"]');
@@ -420,11 +432,6 @@
   let dismissTimeout = null;
 
   function ensureToastContainer() {
-    const existing = document.getElementById('sticky-hud-toast-container');
-    if (existing && document.body && document.body.contains(existing)) {
-      toastContainer = existing;
-      return toastContainer;
-    }
     if (!toastContainer || !document.body.contains(toastContainer)) {
       toastContainer = document.createElement('div');
       toastContainer.id = 'sticky-hud-toast-container';

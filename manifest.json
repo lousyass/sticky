@@ -56,7 +56,7 @@
         "default": "Alt+Shift+E",
         "mac": "MacCtrl+Shift+E"
       },
-      "description": "Save current page, post, or selection to Sticky"
+      "description": "Save focused Reddit post or current page to Sticky"
     },
     "open-library": {
       "suggested_key": {

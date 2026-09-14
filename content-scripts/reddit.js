@@ -57,9 +57,9 @@
 
     // Thumbnail / Preview image
     let thumbnailUrl = null;
-    const mediaImg = elem.querySelector('img[slot="post-media"], img.preview-img, figure img, div[data-testid="post-image"] img');
-    if (mediaImg && mediaImg.src) {
-      thumbnailUrl = mediaImg.src;
+    const mediaEl = elem.querySelector('img[slot="post-media"], img.preview-img, figure img, div[data-testid="post-image"] img, shreddit-player[preview], video[poster], img[src*="preview.redd.it"], img[src*="i.redd.it"], img[src*="external-preview"]');
+    if (mediaEl) {
+      thumbnailUrl = mediaEl.src || mediaEl.getAttribute('preview') || mediaEl.getAttribute('poster') || null;
     }
 
     if (permalink && title) {
@@ -90,9 +90,9 @@
     }
 
     let thumbnailUrl = null;
-    const imgEl = elem.querySelector('img[alt="Post image"], div[data-click-id="media"] img');
-    if (imgEl && imgEl.src) {
-      thumbnailUrl = imgEl.src;
+    const mediaEl = elem.querySelector('img[alt="Post image"], div[data-click-id="media"] img, div[data-click-id="media"] video[poster]');
+    if (mediaEl) {
+      thumbnailUrl = mediaEl.src || mediaEl.getAttribute('poster') || null;
     }
 
     const subEl = elem.querySelector('a[data-click-id="subreddit"]');
