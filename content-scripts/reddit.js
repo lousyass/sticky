@@ -238,6 +238,15 @@
     return null;
   }
 
+  function getSelectedText() {
+    const selection = window.getSelection();
+    if (selection && selection.toString) {
+      const text = selection.toString().trim();
+      if (text) return text;
+    }
+    return null;
+  }
+
   // Listen for background requests
   const runtimeAPI = (typeof browser !== 'undefined' && browser.runtime) ? browser.runtime :
                      (typeof chrome !== 'undefined' && chrome.runtime) ? chrome.runtime : null;
@@ -246,7 +255,13 @@
     runtimeAPI.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'DETECT_FOCUSED_REDDIT_POST') {
         const detected = detectFocusedPost();
-        sendResponse(detected || null);
+        const selectedText = getSelectedText();
+        if (detected) {
+          detected.selectedText = selectedText;
+          sendResponse(detected);
+        } else {
+          sendResponse(selectedText ? { selectedText } : null);
+        }
         return false;
       }
     });

@@ -49,20 +49,9 @@
   // ==========================================
 
   async function init() {
-    console.log('[Sticky DEBUG] init(): starting initialization');
-    if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
-      browser.storage.local.get(null).then(all => {
-        console.log('[Sticky DEBUG] Raw browser.storage.local.get(null):', all);
-      }).catch(err => {
-        console.error('[Sticky DEBUG] Failed to get browser.storage.local:', err);
-      });
-    }
     setupEventListeners();
-    console.log('[Sticky DEBUG] init(): setupEventListeners done, awaiting loadLabels()...');
     await loadLabels();
-    console.log('[Sticky DEBUG] init(): loadLabels() finished, awaiting refreshItems()...');
     await refreshItems();
-    console.log('[Sticky DEBUG] init(): refreshItems() finished');
 
     // Listen for storage changes from background or other tabs
     if (typeof browser !== 'undefined' && browser.storage && browser.storage.onChanged) {
@@ -159,13 +148,10 @@
 
   async function loadLabels() {
     try {
-      console.log('[Sticky DEBUG] loadLabels(): awaiting StickyStorage.getLabels()...');
       state.labels = await StickyStorage.getLabels();
-      console.log('[Sticky DEBUG] loadLabels(): retrieved labels successfully:', state.labels);
       renderLabelFilters();
-      console.log('[Sticky DEBUG] loadLabels(): renderLabelFilters() finished');
     } catch (err) {
-      console.error('[Sticky DEBUG] loadLabels(): CAUGHT ERROR loading labels:', err);
+      console.error('Failed to load labels:', err);
     }
   }
 
@@ -225,15 +211,25 @@
 
   async function refreshItems() {
     try {
-      console.log('[Sticky DEBUG] refreshItems(): awaiting StickyStorage.getItems()...');
       state.items = await StickyStorage.getItems();
-      console.log('[Sticky DEBUG] refreshItems(): retrieved items from storage:', state.items);
-      console.log('[Sticky DEBUG] refreshItems(): calling renderItems()...');
       renderItems();
-      console.log('[Sticky DEBUG] refreshItems(): renderItems() finished');
     } catch (err) {
-      console.error('[Sticky DEBUG] refreshItems(): CAUGHT ERROR loading items:', err);
+      console.error('Failed to load items:', err);
     }
+  }
+
+  function renderEmptyShortcutDescription(shortcutDisplay) {
+    emptyDesc.textContent = 'Press ';
+    const parts = shortcutDisplay.split(' + ');
+    parts.forEach((p, idx) => {
+      const kbd = document.createElement('kbd');
+      kbd.textContent = p.trim();
+      emptyDesc.appendChild(kbd);
+      if (idx < parts.length - 1) {
+        emptyDesc.appendChild(document.createTextNode(' + '));
+      }
+    });
+    emptyDesc.appendChild(document.createTextNode(' while browsing any page or right-click any link, image, or text to save to Sticky.'));
   }
 
   function renderItems() {
@@ -295,15 +291,11 @@
         emptyCreateNoteBtn.style.display = 'none';
       } else {
         emptyTitle.textContent = 'Nothing saved yet';
-        console.log('[Sticky DEBUG] renderItems(): 0 items, calling StickyStorage.getSettings()...');
         StickyStorage.getSettings().then(settings => {
-          console.log('[Sticky DEBUG] renderItems(): StickyStorage.getSettings() resolved:', settings);
           const shortcutDisplay = settings?.captureShortcut?.display || 'Ctrl + `';
-          const kbdParts = shortcutDisplay.split(' + ').map(p => `<kbd>${p.trim()}</kbd>`).join(' + ');
-          emptyDesc.innerHTML = `Press ${kbdParts} while browsing any page or right-click any link, image, or text to save to Sticky.`;
-        }).catch((err) => {
-          console.error('[Sticky DEBUG] renderItems(): StickyStorage.getSettings() REJECTED with error:', err);
-          emptyDesc.innerHTML = 'Press <kbd>Ctrl</kbd> + <kbd>`</kbd> while browsing any page or right-click any link, image, or text to save to Sticky.';
+          renderEmptyShortcutDescription(shortcutDisplay);
+        }).catch(() => {
+          renderEmptyShortcutDescription('Ctrl + `');
         });
         emptyCreateNoteBtn.style.display = 'inline-flex';
       }
@@ -442,7 +434,12 @@
     if (item.note && item.note.trim()) {
       const noteBox = document.createElement('div');
       noteBox.className = 'card-note-box';
-      noteBox.textContent = item.note;
+      let displayText = item.note.trim();
+      const match = displayText.match(/^Selection:\s*["']?([\s\S]*?)["']?$/i);
+      if (match && match[1]) {
+        displayText = match[1];
+      }
+      noteBox.textContent = displayText;
       body.appendChild(noteBox);
     }
 

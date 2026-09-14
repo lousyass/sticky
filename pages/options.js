@@ -164,10 +164,13 @@
       if (e.altKey) activeMods.push('Alt');
       if (e.shiftKey) activeMods.push('Shift');
       if (e.metaKey) activeMods.push('Cmd');
-      recorderActiveView.innerHTML = `
-        <span class="recording-pulse"></span>
-        <span>${activeMods.join(' + ')} + ...</span>
-      `;
+      recorderActiveView.replaceChildren();
+      const pulseSpan = document.createElement('span');
+      pulseSpan.className = 'recording-pulse';
+      const textSpan = document.createElement('span');
+      textSpan.textContent = `${activeMods.join(' + ')} + ...`;
+      recorderActiveView.appendChild(pulseSpan);
+      recorderActiveView.appendChild(textSpan);
       return;
     }
 
@@ -201,10 +204,21 @@
     };
 
     stopRecording(true);
-    recorderIdleView.innerHTML = `
-      <span style="color:var(--text-primary);">Recorded: <strong>${displayString}</strong></span>
-      <span style="color:var(--text-muted);font-size:12px;">(Click "Save Shortcut" below to apply)</span>
-    `;
+    recorderIdleView.replaceChildren();
+    const recordedSpan = document.createElement('span');
+    recordedSpan.style.color = 'var(--text-primary)';
+    recordedSpan.textContent = 'Recorded: ';
+    const strongEl = document.createElement('strong');
+    strongEl.textContent = displayString;
+    recordedSpan.appendChild(strongEl);
+
+    const hintSpan = document.createElement('span');
+    hintSpan.style.color = 'var(--text-muted)';
+    hintSpan.style.fontSize = '12px';
+    hintSpan.textContent = '(Click "Save Shortcut" below to apply)';
+
+    recorderIdleView.appendChild(recordedSpan);
+    recorderIdleView.appendChild(hintSpan);
     btnSaveShortcut.disabled = false;
   }
 

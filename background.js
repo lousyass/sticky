@@ -59,18 +59,36 @@ function setupContextMenus() {
   });
 }
 
-// Ensure context menus are created on install and startup
+// Inject generic content script into existing tabs on startup/install so shortcuts work immediately
+async function injectIntoExistingTabs() {
+  if (!ext.tabs || !ext.tabs.query) return;
+  try {
+    const tabs = await ext.tabs.query({});
+    for (const tab of tabs) {
+      if (tab && tab.id && tab.url && !isRestrictedUrl(tab.url)) {
+        ensureGenericScriptInjected(tab.id).catch(() => {});
+      }
+    }
+  } catch (err) {
+    // Ignore query errors
+  }
+}
+
+// Ensure context menus and content scripts are active on install and startup
 if (ext.runtime.onInstalled) {
   ext.runtime.onInstalled.addListener(() => {
     setupContextMenus();
+    injectIntoExistingTabs();
   });
 }
 if (ext.runtime.onStartup) {
   ext.runtime.onStartup.addListener(() => {
     setupContextMenus();
+    injectIntoExistingTabs();
   });
 }
 setupContextMenus();
+injectIntoExistingTabs();
 
 // ==========================================
 // TOOLBAR ACTION & COMMAND LISTENERS
@@ -105,7 +123,7 @@ if (ext.contextMenus && ext.contextMenus.onClicked) {
       return;
     }
 
-    if (!tab) {
+    if (!tab || !tab.id) {
       const [activeTab] = await ext.tabs.query({ active: true, currentWindow: true });
       tab = activeTab;
     }
@@ -131,7 +149,7 @@ if (ext.contextMenus && ext.contextMenus.onClicked) {
 /**
  * Capture current active tab with Reddit auto-detection and generic fallback
  */
-async function handleSaveCurrentTab(tab) {
+async function handleSaveCurrentTab(tab, preSelectedText = null) {
   if (!tab || !tab.id || !tab.url) return;
 
   // Ignore restricted browser URLs
@@ -149,11 +167,13 @@ async function handleSaveCurrentTab(tab) {
     try {
       const redditData = await sendMessageToTabWithTimeout(tab.id, { type: 'DETECT_FOCUSED_REDDIT_POST' }, 800);
       if (redditData && redditData.url) {
+        const sel = preSelectedText || redditData.selectedText || null;
         itemData = {
           type: 'link',
           url: redditData.url,
           title: redditData.title || tab.title || 'Reddit Post',
-          source: redditData.source || 'reddit.com'
+          source: redditData.source || 'reddit.com',
+          note: sel || null
         };
         candidateThumbnailUrl = redditData.thumbnailUrl;
       }
@@ -168,12 +188,13 @@ async function handleSaveCurrentTab(tab) {
       await ensureGenericScriptInjected(tab.id);
       const meta = await sendMessageToTabWithTimeout(tab.id, { type: 'EXTRACT_PAGE_METADATA' }, 1200);
       if (meta) {
+        const sel = preSelectedText || meta.selectedText || null;
         itemData = {
           type: 'link',
           url: meta.url || tab.url,
           title: meta.title || tab.title || 'Untitled Page',
           faviconUrl: meta.faviconUrl || tab.favIconUrl || null,
-          note: meta.selectedText ? `Selection: "${meta.selectedText}"` : null
+          note: sel || null
         };
         candidateThumbnailUrl = meta.primaryThumbnailUrl || meta.faviconUrl || tab.favIconUrl || null;
       }
@@ -188,7 +209,8 @@ async function handleSaveCurrentTab(tab) {
       type: 'link',
       url: tab.url,
       title: tab.title || 'Saved Page',
-      faviconUrl: tab.favIconUrl || null
+      faviconUrl: tab.favIconUrl || null,
+      note: preSelectedText || null
     };
     candidateThumbnailUrl = tab.favIconUrl || null;
   }
@@ -212,7 +234,13 @@ async function handleSaveLink(info, tab) {
     source: StickyStorage._extractSource(linkUrl)
   };
 
-  await finalizeSaveItem(tab, itemData, null);
+  let candidateThumbnailUrl = null;
+  const ytId = extractYouTubeVideoId(linkUrl);
+  if (ytId) {
+    candidateThumbnailUrl = `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
+  }
+
+  await finalizeSaveItem(tab, itemData, candidateThumbnailUrl);
 }
 
 /**
@@ -271,7 +299,7 @@ async function finalizeSaveItem(tab, itemData, candidateThumbnailUrl) {
   let thumbnailData = null;
 
   // Step A: Attempt to fetch image candidate
-  if (candidateThumbnailUrl && isValidHttpUrl(candidateThumbnailUrl)) {
+  if (candidateThumbnailUrl && !isGenericSiteLogo(candidateThumbnailUrl) && isValidHttpUrl(candidateThumbnailUrl)) {
     try {
       thumbnailData = await fetchImageAsDataUrl(candidateThumbnailUrl);
     } catch (err) {
@@ -293,8 +321,8 @@ async function finalizeSaveItem(tab, itemData, candidateThumbnailUrl) {
     }
   }
 
-  // Step C: Fallback to favicon if still nothing
-  if (!thumbnailData && itemData.faviconUrl && isValidHttpUrl(itemData.faviconUrl)) {
+  // Step C: Fallback to favicon if still nothing (and not a generic site logo)
+  if (!thumbnailData && itemData.faviconUrl && !isGenericSiteLogo(itemData.faviconUrl) && isValidHttpUrl(itemData.faviconUrl)) {
     try {
       thumbnailData = await fetchImageAsDataUrl(itemData.faviconUrl);
     } catch (err) {
@@ -360,21 +388,87 @@ function isValidHttpUrl(string) {
 }
 
 /**
+ * Check if a URL points to a generic site branding logo/banner
+ */
+function isGenericSiteLogo(url) {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    const path = u.pathname.toLowerCase();
+
+    // YouTube generic branding
+    if (host.includes('youtube.com') && (path.includes('yt_1200.png') || path.includes('/img/desktop/'))) {
+      return true;
+    }
+
+    // X / Twitter generic branding
+    if (host.includes('twimg.com')) {
+      if (path.includes('/responsive-web/') || path.includes('/errors/')) {
+        return true;
+      }
+    }
+
+    // Google generic branding
+    if (host.includes('google.com') && path.includes('/images/branding/')) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Extract YouTube video ID from a URL
+ */
+function extractYouTubeVideoId(urlStr) {
+  try {
+    const u = new URL(urlStr);
+    if (u.hostname.includes('youtu.be')) {
+      return u.pathname.slice(1).split('/')[0].split('?')[0];
+    }
+    if (u.pathname.startsWith('/shorts/')) {
+      return u.pathname.split('/shorts/')[1].split('/')[0].split('?')[0];
+    }
+    if (u.pathname.startsWith('/embed/')) {
+      return u.pathname.split('/embed/')[1].split('/')[0].split('?')[0];
+    }
+    if (u.searchParams.has('v')) {
+      return u.searchParams.get('v');
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Fetch image and convert to Data URL
  */
 async function fetchImageAsDataUrl(url) {
   if (url.startsWith('data:')) return url;
 
-  const response = await fetch(url, { mode: 'cors' });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const blob = await response.blob();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  try {
+    const response = await fetch(url, { mode: 'cors', signal: controller.signal });
+    clearTimeout(timer);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    throw err;
+  }
 }
 
 /**
@@ -472,14 +566,15 @@ async function openLibraryPage() {
 ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TRIGGER_CAPTURE_FROM_PAGE') {
     const targetTab = sender.tab;
+    const selectedText = message.selectedText || null;
     if (targetTab) {
-      handleSaveCurrentTab(targetTab)
+      handleSaveCurrentTab(targetTab, selectedText)
         .then(() => sendResponse({ success: true }))
         .catch(err => sendResponse({ success: false, error: err.message }));
     } else {
       ext.tabs.query({ active: true, currentWindow: true }).then(([activeTab]) => {
         if (activeTab) {
-          handleSaveCurrentTab(activeTab)
+          handleSaveCurrentTab(activeTab, selectedText)
             .then(() => sendResponse({ success: true }))
             .catch(err => sendResponse({ success: false, error: err.message }));
         }
@@ -491,6 +586,13 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'UPDATE_SAVED_ITEM') {
     StickyStorage.updateItem(message.itemId, message.updates)
       .then(res => sendResponse({ success: true, item: res }))
+      .catch(err => sendResponse({ success: false, error: err.message }));
+    return true; // Async response
+  }
+
+  if (message.type === 'CREATE_LABEL') {
+    StickyStorage.saveLabel({ name: message.name, color: message.color })
+      .then(newLabel => sendResponse({ success: true, label: newLabel }))
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true; // Async response
   }

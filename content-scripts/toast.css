@@ -155,6 +155,64 @@
   border-color: transparent !important;
 }
 
+.sticky-toast-add-label-btn {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  border: 1px dashed #d1d5db !important;
+  background: transparent !important;
+  color: #6b7280 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  transition: all 0.15s ease !important;
+  user-select: none !important;
+}
+
+.sticky-toast-add-label-btn:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+  border-color: #9ca3af !important;
+}
+
+.sticky-toast-new-label-wrapper {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.sticky-toast-new-label-input {
+  width: 90px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  border-radius: 4px !important;
+  border: 1px solid #f59e0b !important;
+  outline: none !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+}
+
+.sticky-toast-new-label-confirm {
+  border: none !important;
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  line-height: 1.2 !important;
+  transition: opacity 0.15s ease !important;
+}
+
+.sticky-toast-new-label-confirm:hover {
+  opacity: 0.85 !important;
+}
+
 /* Quick Note Input */
 .sticky-toast-note-input {
   width: 100% !important;
@@ -177,4 +235,186 @@
 
 .sticky-toast-note-input::placeholder {
   color: #9ca3af !important;
+}
+
+/* ==========================================
+   DARK THEME SYNC (Site & Browser Theme)
+   ========================================== */
+
+/* Explicit dark theme class detected from page */
+.sticky-toast-card.sticky-theme-dark {
+  background: #18181b !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 8px 16px -6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-title {
+  color: #f3f4f6 !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-source {
+  color: #9ca3af !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-badge {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-close {
+  color: #9ca3af !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-close:hover {
+  color: #f3f4f6 !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-thumb {
+  background: #27272a !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-label-pill {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #d1d5db !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-label-pill:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-label-pill.sticky-active {
+  background: var(--label-color, #f59e0b) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-add-label-btn {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #9ca3af !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-add-label-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f3f4f6 !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-new-label-input {
+  background: #27272a !important;
+  color: #f3f4f6 !important;
+  border-color: #f59e0b !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-note-input {
+  background: #27272a !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f3f4f6 !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-note-input:focus {
+  border-color: #f59e0b !important;
+  background: #2f2f35 !important;
+}
+
+.sticky-toast-card.sticky-theme-dark .sticky-toast-note-input::placeholder {
+  color: #71717a !important;
+}
+
+/* System dark mode fallback */
+@media (prefers-color-scheme: dark) {
+  .sticky-toast-card:not(.sticky-theme-light) {
+    background: #18181b !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 8px 16px -6px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-title {
+    color: #f3f4f6 !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-source {
+    color: #9ca3af !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-badge {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-close {
+    color: #9ca3af !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-close:hover {
+    color: #f3f4f6 !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-thumb {
+    background: #27272a !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-label-pill {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #d1d5db !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-label-pill:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-label-pill.sticky-active {
+    background: var(--label-color, #f59e0b) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-add-label-btn {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #9ca3af !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-add-label-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f3f4f6 !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-new-label-input {
+    background: #27272a !important;
+    color: #f3f4f6 !important;
+    border-color: #f59e0b !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-note-input {
+    background: #27272a !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f3f4f6 !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-note-input:focus {
+    border-color: #f59e0b !important;
+    background: #2f2f35 !important;
+  }
+
+  .sticky-toast-card:not(.sticky-theme-light) .sticky-toast-note-input::placeholder {
+    color: #71717a !important;
+  }
 }

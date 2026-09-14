@@ -362,11 +362,17 @@ body {
   padding: 0 4px;
 }
 
-/* Grid Layout */
+/* Grid Layout - 5 cards per row on standard desktop screens */
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 1100px) {
+  .items-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 /* Base Card */
@@ -391,8 +397,8 @@ body {
 /* Unread indicator pip */
 .unread-pip {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -404,7 +410,7 @@ body {
 /* Card Thumbnail */
 .card-media {
   width: 100%;
-  height: 170px;
+  height: 135px;
   background: var(--bg-subtle);
   overflow: hidden;
   position: relative;
@@ -432,7 +438,7 @@ body {
   height: 100%;
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.2));
   color: var(--brand-primary);
-  font-size: 32px;
+  font-size: 26px;
 }
 
 /* Note Type Card (No image, tactile post-it header) */
@@ -441,11 +447,11 @@ body {
 }
 
 .card-note-banner {
-  padding: 12px 16px 0 16px;
+  padding: 10px 14px 0 14px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -454,18 +460,18 @@ body {
 
 /* Card Body */
 .card-body {
-  padding: 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 10px;
+  gap: 8px;
 }
 
 .card-meta-top {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 6px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
@@ -479,14 +485,19 @@ body {
 .card-source {
   font-weight: 500;
   color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
 }
 
 .card-date {
   margin-left: auto;
+  white-space: nowrap;
 }
 
 .card-title {
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 600;
   line-height: 1.35;
   color: var(--text-primary);
@@ -505,13 +516,13 @@ body {
 .card-note-box {
   background: var(--bg-primary);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-word;
-  max-height: 120px;
+  max-height: 100px;
   overflow-y: auto;
   border-left: 3px solid var(--brand-accent);
 }
@@ -520,15 +531,15 @@ body {
 .card-labels {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   margin-top: auto;
-  padding-top: 6px;
+  padding-top: 4px;
 }
 
 .card-label-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
   color: #ffffff;
   background: var(--badge-color, #f59e0b);
@@ -539,7 +550,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-primary);
   font-size: 12px;
