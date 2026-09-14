@@ -59,18 +59,40 @@ function setupContextMenus() {
   });
 }
 
-// Ensure context menus are created on install and startup
+// Inject generic content script into existing tabs on startup/install so shortcuts work immediately without manual page refreshes
+async function injectIntoExistingTabs() {
+  if (!ext.tabs || !ext.tabs.query) return;
+  try {
+    const tabs = await ext.tabs.query({});
+    for (const tab of tabs) {
+      if (tab && tab.id && tab.url && !isRestrictedUrl(tab.url)) {
+        try {
+          await ensureGenericScriptInjected(tab.id);
+        } catch (perTabErr) {
+          console.warn('Failed to inject Sticky script into tab:', tab.id, tab.url, perTabErr);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Could not query existing tabs for script injection:', err);
+  }
+}
+
+// Ensure context menus and content scripts are active on install and startup
 if (ext.runtime.onInstalled) {
   ext.runtime.onInstalled.addListener(() => {
     setupContextMenus();
+    injectIntoExistingTabs();
   });
 }
 if (ext.runtime.onStartup) {
   ext.runtime.onStartup.addListener(() => {
     setupContextMenus();
+    injectIntoExistingTabs();
   });
 }
 setupContextMenus();
+injectIntoExistingTabs();
 
 // ==========================================
 // TOOLBAR ACTION & COMMAND LISTENERS
@@ -285,21 +307,28 @@ async function finalizeSaveItem(tab, itemData, candidateThumbnailUrl) {
     try {
       thumbnailData = await fetchImageAsDataUrl(candidateThumbnailUrl);
     } catch (err) {
-      console.warn('Could not fetch candidate thumbnail:', candidateThumbnailUrl, err);
+      if (err.name === 'CorsNetworkError') {
+        console.warn(`[Sticky] Candidate thumbnail direct-fetch blocked by CORS/network policy for ${candidateThumbnailUrl}. Falling back to tab screenshot.`, err);
+      } else if (err.name === 'TimeoutError') {
+        console.warn(`[Sticky] Candidate thumbnail direct-fetch timed out (3s) for ${candidateThumbnailUrl}. Falling back to tab screenshot.`, err);
+      } else {
+        console.warn(`[Sticky] Candidate thumbnail direct-fetch failed for ${candidateThumbnailUrl}:`, err);
+      }
     }
   }
 
   // Step B: Fallback to tab screenshot via captureVisibleTab if link item has no thumbnail
-  if (!thumbnailData && tab && tab.id && tab.windowId && !isRestrictedUrl(tab.url)) {
+  if (!thumbnailData && tab && tab.id && !isRestrictedUrl(tab.url)) {
     try {
-      if (ext.tabs.captureVisibleTab) {
-        thumbnailData = await ext.tabs.captureVisibleTab(tab.windowId, {
+      if (ext.tabs && ext.tabs.captureVisibleTab) {
+        const targetWindowId = (tab.windowId !== undefined && tab.windowId !== null) ? tab.windowId : null;
+        thumbnailData = await ext.tabs.captureVisibleTab(targetWindowId, {
           format: 'jpeg',
           quality: 75
         });
       }
     } catch (err) {
-      console.warn('captureVisibleTab fallback failed:', err);
+      console.warn('[Sticky] captureVisibleTab fallback failed:', err);
     }
   }
 
@@ -308,7 +337,7 @@ async function finalizeSaveItem(tab, itemData, candidateThumbnailUrl) {
     try {
       thumbnailData = await fetchImageAsDataUrl(itemData.faviconUrl);
     } catch (err) {
-      // ignore
+      console.warn('[Sticky] Favicon thumbnail fallback failed:', itemData.faviconUrl, err);
     }
   }
 
@@ -432,16 +461,40 @@ function extractYouTubeVideoId(urlStr) {
 async function fetchImageAsDataUrl(url) {
   if (url.startsWith('data:')) return url;
 
-  const response = await fetch(url, { mode: 'cors' });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const blob = await response.blob();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  try {
+    const response = await fetch(url, { mode: 'cors', signal: controller.signal });
+    clearTimeout(timer);
+    if (!response.ok) {
+      const httpErr = new Error(`HTTP ${response.status}`);
+      httpErr.status = response.status;
+      throw httpErr;
+    }
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') {
+      const timeoutErr = new Error(`Fetch timed out after 3s: ${url}`);
+      timeoutErr.name = 'TimeoutError';
+      throw timeoutErr;
+    }
+    if (err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('networkerror'))) {
+      const corsErr = new Error(`CORS/Network restriction prevented loading image from ${url}: ${err.message}`);
+      corsErr.name = 'CorsNetworkError';
+      corsErr.originalError = err;
+      throw corsErr;
+    }
+    throw err;
+  }
 }
 
 /**
